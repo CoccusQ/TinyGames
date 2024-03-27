@@ -12,20 +12,24 @@ int backage[8];
 
 enum Site{STORE=1,FLAT,CLINIC,SCHOOL,FACTORY,STREET,BASE};
 enum Item{WATER=1,BREAD,MEAT,MEDICINE,WOOD,STEEL,AMMO};
+enum ZombieType{NORMAL=1,INFECTED,GIANT};
 
 string forwards=" =>>>>>>>>>>>>>>";
 string backwards=" <<============";
 string progress_bar=" ################";
-string e="搜索中........\n\n";
+string e="搜索中........\n";
 string name,search_result;
+string win="\n 击杀成功!!!";
+string lose="\n 你战死了!!!";
 
 class Player{
     public:
-        Player(int xx=0,int b=100,int st=100,int l=100):x(xx),bag(b),satiety(st),life(l){}
+        Player(int xx=0,int bg=100,int sty=100,int lf=100,int attk=5):x(xx),bag(bg),satiety(sty),life(lf),atk(attk){}
         int setx(){x=0;return x;}
         int getx(){return x;}
         int getsatiety(){return satiety;}
         int getlife(){return life;}
+        int get_atk(){return atk;}
         void forward(){
             if(x+1>127){
                 cout<<"已到达边界."<<endl;
@@ -53,15 +57,16 @@ class Player{
             }
             switch (i){
                 case WATER:
-                    satiety+=5;
+                    satiety+=2;
                     life+=5;
                     break;
                 case BREAD:
                     satiety+=20;
+                    life+=2;
                     break;
                 case MEAT:
                     satiety+=12;
-                    life+=2;
+                    life+=5;
                     break;
                 case WOOD:
                     break;
@@ -70,7 +75,7 @@ class Player{
                 case AMMO:       
                     break;
                 case MEDICINE:
-                    life+=12;
+                    life+=15;
                     break;
                 default:
                     break;
@@ -101,12 +106,61 @@ class Player{
             }
             return 0;
         }
+        void decreaseHP(int atk){life-=atk;}
     private:
         int x;
         int bag;
         int satiety;
         int life;
+        int atk;
 };
+
+
+class Zombie{
+    public:
+        Zombie(int ztype=NORMAL):type(ztype){
+            switch(type){
+                case NORMAL:
+                    life=50;
+                    atk=4;
+                    name="普通丧尸";
+                    break;
+                case INFECTED:
+                    life=80;
+                    atk=8;
+                    name="感染者";
+                    break;
+                case GIANT:
+                    life=200;
+                    atk=20;
+                    name="巨型丧尸";
+                    break;
+                default:
+                    break;
+            }
+        }
+        string getZName(){return name;}
+        int getZType(){return type;}
+        int get_atk(){return atk;}
+        int getlife(){return life;}
+        int decreaseHP(int atk){life-=atk;return life;}
+    private:
+        int life;
+        int atk;
+        string name;
+        int type;
+};
+
+
+void showdata(Player &p1){
+    cout<<"+--------------------"<<endl;
+    cout<<"| 位置 X : "<<p1.getx()<<endl;
+    cout<<"+--------------------"<<endl;
+    cout<<"| 生命值 : "<<p1.getlife()<<endl;
+    cout<<"+--------------------"<<endl;
+    cout<<"| 饱食度 : "<<p1.getsatiety()<<endl;
+    cout<<"+--------------------"<<endl;
+}
 
 
 void printline(string s,int t1=100,int t2=50,int t3=500){
@@ -212,11 +266,12 @@ string showname(int i){
 
 
 void explore(Player &p){
-    int i=rand()%7+1;
+    int i=rand()%6+1;
     int num=1;
     switch(path[p.getx()]){
     case STORE:
         if(i==WATER||i==BREAD||i==MEAT)num=5;
+        if(i==MEDICINE) i=WATER;
         break;
     case FLAT:
         if(i==WOOD||i==STEEL)num=3;
@@ -228,7 +283,13 @@ void explore(Player &p){
         if(i==WATER||i==BREAD)num=2;
         break;
     case FACTORY:
-        if(i==WOOD||i==STEEL||i==AMMO)num=5;
+        if(i==WOOD||i==STEEL)num=5;
+        else if(i==MEAT||i==BREAD){
+            i=AMMO;num=5;
+        }
+        break;
+    case STREET:
+        i=WOOD;
         break;
     default:
         break;
@@ -259,20 +320,101 @@ void showbag(){
     cout<<"+----------------\n"<<endl;
 }
 
+
+Zombie produce_zombies(){
+    int i=rand()%10+1;
+    if(i<=7){
+        i=NORMAL;
+    }
+    else if(i<=9){
+        i=INFECTED;
+    }
+    else{
+        i=GIANT;
+    }
+    Zombie z1(i);
+    cout<<"\n 发现一只"<<z1.getZName()<<"!!!"<<endl;
+    _sleep(500);
+    return z1;
+}
+
+
+void combat(Zombie z,Player &p){
+    cout<<" 拿起武器, 击败丧尸!!!"<<endl;
+    char c;
+    while(1){
+        system("cls");
+        system("color 0A");
+        showdata(p);
+        cout<<"\n* 丧尸生命值: "<<z.getlife()<<endl;
+        cout<<" 按F攻击丧尸..."<<endl;
+        c=_getch();
+        if(c=='f'||c=='F'){
+            int life=z.decreaseHP(p.get_atk());
+            p.decrease_satiety(2);
+            cout<<"  丧尸生命值 -"<<p.get_atk()<<endl;
+            if(z.getlife()<=0){
+                printline(win);
+                break;
+            }
+        }
+        else{
+            cout<<" 攻击失败..."<<endl;
+        }
+        _sleep(500);
+        system("cls");
+        showdata(p);
+        cout<<"\n* 丧尸生命值: "<<z.getlife()<<endl;
+        int r=rand()%10+1,rate;
+        switch(z.getZType()){
+        case NORMAL:
+            rate=7;
+            break;
+        case INFECTED:
+            rate=9;
+            break;
+        case GIANT:
+            rate=6;
+            break;
+        default:
+            break;
+        }
+        if(r<=rate){
+            p.decreaseHP(z.get_atk());
+            system("color 04");
+            cout<<"\n 被击中了! 生命值 -"<<z.get_atk()<<endl;
+        }
+        else{
+            cout<<"\n 你躲开了攻击."<<endl;
+        }
+        _sleep(500);
+        if(p.getlife()<=0){
+            printline(lose);
+            break;
+        }
+    }
+}
+
+void detect(Player &p){
+    int i=rand()%10+1;
+    if(i<=6){
+        cout<<"\n 安全..."<<endl;
+        explore(p);
+        p.decrease_satiety(1);
+    }
+    else{
+        combat(produce_zombies(),p);
+    }
+}
+
 int main(){
     srand(time(NULL));
+    L1:
     system("color 0A");
     Player p1;
     while(1){
         
-        cout<<"+--------------------"<<endl;
-        cout<<"| 位置 X : "<<p1.getx()<<endl;
-        cout<<"+--------------------"<<endl;
-        cout<<"| 生命值 : "<<p1.getlife()<<endl;
-        cout<<"+--------------------"<<endl;
-        cout<<"| 饱食度 : "<<p1.getsatiety()<<endl;
-        cout<<"+--------------------"<<endl;
-        
+        showdata(p1);
         site(p1);
         printpath(p1);
 
@@ -301,8 +443,7 @@ int main(){
         }
         else if(c=='z'||c=='z'){
             printline(e);
-            explore(p1);
-            p1.decrease_satiety(2);
+            detect(p1);
             end=p1.starve(2);
         }
         else if(c=='x'||c=='X'){
@@ -314,7 +455,9 @@ int main(){
             p1.eat(choice);
         }
         system("cls");
-        if(end=='r'||end=='R') break;
+        if(end=='r'||end=='R'){
+            goto L1;
+        }
     }
     return 0;
 }
