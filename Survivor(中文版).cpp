@@ -115,7 +115,7 @@ class Player{
 
         void addExp(int num){exp+=num;}
 
-        void addAtk(int num){exp+=num;}
+        void addAtk(int num){atk+=num;}
 
         void level_up(){
             if(exp<15){
@@ -400,6 +400,7 @@ void showbag(){
 
 int showweapon(Player &p){
     int sum=0;
+    int choice=PUNCH;
     for(int i=2;i<=4;i++){
         if(myweapon[i]!=0){
             cout<<"+----------------"<<endl;
@@ -409,12 +410,13 @@ int showweapon(Player &p){
     }
     if(sum==0){
         cout<<" µ±Ç°ÎÞÎäÆ÷..."<<endl;
-        return 0;
+        _sleep(500);
+        return choice;
     }
     cout<<"+----------------"<<endl;
     cout<<"\n ÇëÊäÈëÐòºÅÑ¡ÔñÎäÆ÷..."<<endl;
     char c=_getch();
-    int choice=c-'0';
+    choice=c-'0';
     return choice;
 }
 
@@ -549,7 +551,7 @@ bool escape(int exp,int ztype){
         rate1=90;
         break;
     case INFECTED:
-        rate1=50;
+        rate1=60;
         break;
     case GIANT:
         rate1=80;
@@ -610,6 +612,7 @@ void combat(Zombie z,Player &p){
                         break;
                 }
                 p.level_up();
+                p.change_weapon(p.get_weapontype());
                 break;
             }
         }
