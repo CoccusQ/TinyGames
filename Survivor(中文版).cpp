@@ -26,6 +26,7 @@ string win="\n 击杀成功!!!";
 string lose="\n 你战死了!!!";
 string escaped="\n 成功逃跑!!!";
 
+
 class Player{
     public:
         Player(int xx=0,int bg=100,int sty=100,int lf=100,int attk=5,int ex=0,int wpn=PUNCH):
@@ -109,9 +110,15 @@ class Player{
                 _sleep(1000);
             }
         }
-        void increaseHP(int num){life+=num;}
+        void increaseHP(int num){
+            life+=num;
+            if(life>100) life=100;
+        }
 
-        void decreaseHP(int atk){life-=atk;}
+        void decreaseHP(int atk){
+            life-=atk;
+            if(life<0) life=0;
+        }
 
         void addExp(int num){exp+=num;}
 
@@ -174,12 +181,12 @@ class Zombie{
                     name="普通丧尸";
                     break;
                 case INFECTED:
-                    life=70;
+                    life=60;
                     atk=8;
                     name="感染者";
                     break;
                 case GIANT:
-                    life=200;
+                    life=180;
                     atk=20;
                     name="巨型丧尸";
                     break;
@@ -426,11 +433,11 @@ void make_weapon(){
     cout<<"+-------------------------"<<endl;
     cout<<"| 1.木棍: 木材 X2"<<endl;
     cout<<"+-------------------------"<<endl;
-    cout<<"| 2.刀  : 木材 X3 钢铁 X6"<<endl;
+    cout<<"| 2.刀  : 木材 X3 钢铁 X4"<<endl;
     cout<<"+-------------------------"<<endl;
-    cout<<"| 3.枪  : 木材 X2 钢铁 X15"<<endl;
+    cout<<"| 3.枪  : 木材 X2 钢铁 X10"<<endl;
     cout<<"+-------------------------"<<endl;
-    cout<<"| 4.弹药: 钢铁 X3"<<endl;
+    cout<<"| 4.弹药: 钢铁 X1"<<endl;
     cout<<"+-------------------------"<<endl;
     cout<<"\n 请输入相应序号制作武器..."<<endl;
     char c=_getch();
@@ -441,15 +448,15 @@ void make_weapon(){
         myweapon[STICK]++;
         break;
     case 2:
-        num1=3;num2=6;
+        num1=3;num2=4;
         myweapon[KNIFE]++;
         break;
     case 3:
-        num1=2;num2=15;
+        num1=2;num2=10;
         myweapon[GUN]++;
         break;
     case 4:
-        num2=3;
+        num2=1;
         backage[AMMO]++;
     default:
         break;
@@ -459,6 +466,7 @@ void make_weapon(){
         backage[STEEL]-=num2;
         printline("\n 制作中...\n");
         printline(progress_bar);
+        printline("\n 完成!\n",0);
     }
     else{
         printline("\n 材料不足!\n",0,10);
@@ -475,14 +483,21 @@ void basement(Player &p){
         cout<<"+--------------------"<<endl;
         cout<<"| 制作武器 : 按M键"<<endl;
         cout<<"+--------------------"<<endl;
-        cout<<"\n 按E键退出基地..."<<endl;
+        cout<<"\n 按B键退出基地..."<<endl;
         char c=_getch();
         if(c=='r'||c=='R'){
-            p.increaseHP(50);
-            p.decrease_satiety(15);
-            printline(progress_bar,100,60);
-            printline("\n 生命值 +50");
-            printline("\n 饱食度 -15\n");
+            if(p.getlife()<100){
+                p.increaseHP(50);
+                p.decrease_satiety(15);
+                cout<<"\n 开始治疗..."<<endl;
+                printline(progress_bar,100,60);
+                printline("\n 生命值 +50");
+                printline("\n 饱食度 -15\n");
+            }
+            else{
+                cout<<"\n 生命值已满!"<<endl;
+                _sleep(500);
+            }
         }
         else if(c=='m'||c=='M'){
             make_weapon();
@@ -491,7 +506,7 @@ void basement(Player &p){
             char w=showweapon(p);
             p.change_weapon(w);
         }
-        else if(c=='e'||c=='E'){
+        else if(c=='b'||c=='B'){
             system("color 0A");
             break;
         }
@@ -592,6 +607,10 @@ void combat(Zombie z,Player &p){
         cout<<" 按F攻击丧尸..."<<endl;
         char c=_getch();
         if(c=='f'||c=='F'){
+            if(p.get_weapontype()==GUN){
+                if(backage[AMMO]>=1) backage[AMMO]--;
+                else p.change_weapon(PUNCH);
+            }
             z.decreaseHP(p.get_atk());
             p.decrease_satiety(2);
             cout<<"  丧尸生命值 -"<<p.get_atk()<<endl;
@@ -628,6 +647,7 @@ void combat(Zombie z,Player &p){
         else if(c=='j'||c=='J'){
             char w=showweapon(p);
             p.change_weapon(w);
+            printline("\n 更换武器成功!\n");
             continue;
         }
         else{
@@ -668,6 +688,7 @@ void combat(Zombie z,Player &p){
     }
 }
 
+
 void detect(Player &p){
     int i=rand()%10+1;
     if(i<=6){
@@ -680,15 +701,56 @@ void detect(Player &p){
     }
 }
 
+
+void help_menu(){
+    system("cls");
+    system("color 07");
+    cout<<"====================="<<endl;
+    cout<<"|  帮助--按键说明 "<<endl;
+    cout<<"====================="<<endl;
+    cout<<"|  前进     : D"<<endl;
+    cout<<"+--------------------"<<endl;
+    cout<<"|  后退     : A"<<endl;
+    cout<<"+--------------------"<<endl;
+    cout<<"|  回到基地 : G"<<endl;
+    cout<<"+--------------------"<<endl;
+    cout<<"|  打开背包 : X"<<endl;
+    cout<<"+--------------------"<<endl;
+    cout<<"|  搜索     : Z"<<endl;
+    cout<<"+--------------------"<<endl;
+    cout<<"|  更换武器 : J"<<endl;
+    cout<<"+--------------------"<<endl;
+    cout<<"|  进入基地 : B"<<endl;
+    cout<<"====================="<<endl;
+    cout<<"\n 请按任意键关闭..."<<endl;
+    _getch();
+    system("color 0A");
+}
+
+
+void opening(){
+    system("color 0A");
+    cout<<"      _____"<<endl;
+    cout<<"     /     \\"<<endl;
+    cout<<"    | () () |"<<endl;
+    cout<<"     \\  ^  /"<<endl;
+    cout<<"      |||||"<<endl;
+    cout<<"\n S U R V I V O R"<<endl;
+    cout<<"\n <请按任意键开始>\n"<<endl;
+    _getch();
+    system("cls");
+}
+
 int main(){
     system("title Suvivor(中文版)");
     int sum=0;
     srand(time(NULL));
+    opening();
     L1:
     system("color 0A");
     Player p1;
     while(1){
-        
+        cout<<" 按H键查看帮助..."<<endl;
         showdata(p1);
         site(p1);
         printpath(p1);
@@ -742,6 +804,10 @@ int main(){
         else if(c=='j'||c=='J'){
             char w=showweapon(p1);
             p1.change_weapon(w);
+            printline("\n 更换武器成功!\n");
+        }
+        else if(c=='h'||c=='H'){
+            help_menu();
         }
         system("cls");
         if(p1.getlife()<=0){
