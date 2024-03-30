@@ -20,7 +20,7 @@ enum Weapon{PUNCH=1,STICK,KNIFE,GUN};
 string forwards=" =>>>>>>>>>>>>>>";
 string backwards=" <<============";
 string progress_bar=" ################";
-string e="搜索中........\n";
+string e="搜索中......\n";
 string name,search_result;
 string win="\n 击杀成功!!!";
 string lose="\n 你战死了!!!";
@@ -398,10 +398,27 @@ void showbag(){
         }
     }
     if(sum==0){
-        cout<<" 背包还是空的..."<<endl;
+        cout<<"(!)背包还是空的..."<<endl;
         return;
     }
     cout<<"+----------------\n"<<endl;
+    cout<<" 输入序号以使用相应物品..."<<endl;
+}
+
+
+void usebag(Player &p){
+    while(1){
+        showbag();
+        cout<<" <按X键关闭背包...>"<<endl;
+        char c=_getch();
+        int choice=c-'0';
+        if(c=='x'||c=='X'){
+            return;
+        }
+        else{
+            p.eat(choice);
+        }
+    }
 }
 
 
@@ -416,7 +433,7 @@ int showweapon(Player &p){
         }
     }
     if(sum==0){
-        cout<<" 当前无武器..."<<endl;
+        cout<<"(!)没有可更换的武器..."<<endl;
         _sleep(500);
         return choice;
     }
@@ -429,47 +446,63 @@ int showweapon(Player &p){
 
 
 void make_weapon(){
-    int num1=0,num2=0;
-    cout<<"+-------------------------"<<endl;
-    cout<<"| 1.木棍: 木材 X2"<<endl;
-    cout<<"+-------------------------"<<endl;
-    cout<<"| 2.刀  : 木材 X3 钢铁 X4"<<endl;
-    cout<<"+-------------------------"<<endl;
-    cout<<"| 3.枪  : 木材 X2 钢铁 X10"<<endl;
-    cout<<"+-------------------------"<<endl;
-    cout<<"| 4.弹药: 钢铁 X1"<<endl;
-    cout<<"+-------------------------"<<endl;
-    cout<<"\n 请输入相应序号制作武器..."<<endl;
-    char c=_getch();
-    int choice=c-'0';
-    switch(choice){
-    case 1:
-        num1=2;
-        myweapon[STICK]++;
-        break;
-    case 2:
-        num1=3;num2=4;
-        myweapon[KNIFE]++;
-        break;
-    case 3:
-        num1=2;num2=10;
-        myweapon[GUN]++;
-        break;
-    case 4:
-        num2=1;
-        backage[AMMO]++;
-    default:
-        break;
-    }
-    if(backage[WOOD]>=num1&&backage[STEEL]>=num2){
-        backage[WOOD]-=num1;
-        backage[STEEL]-=num2;
-        printline("\n 制作中...\n");
-        printline(progress_bar);
-        printline("\n 完成!\n",0);
-    }
-    else{
-        printline("\n 材料不足!\n",0,10);
+    while(1){
+        system("cls");
+        int num1=0,num2=0;
+        cout<<"\n=========================="<<endl;
+        cout<<"| 剩余木材 : "<<backage[WOOD]<<endl;
+        cout<<"+-------------------------"<<endl;
+        cout<<"| 剩余钢铁 : "<<backage[STEEL]<<endl;
+        cout<<"==========================\n"<<endl;
+        cout<<"=========================="<<endl;
+        cout<<"| 1.木棍: 木材 X2"<<endl;
+        cout<<"+-------------------------"<<endl;
+        cout<<"| 2.刀  : 木材 X3 钢铁 X4"<<endl;
+        cout<<"+-------------------------"<<endl;
+        cout<<"| 3.枪  : 木材 X2 钢铁 X10"<<endl;
+        cout<<"+-------------------------"<<endl;
+        cout<<"| 4.弹药: 钢铁 X1"<<endl;
+        cout<<"=========================="<<endl;
+        cout<<"\n 请输入相应序号制作武器..."<<endl;
+        cout<<" <按M键退出武器制作...>"<<endl;
+        char c=_getch();
+        int choice=c-'0';
+        switch(choice){
+        case 1:
+            num1=2;
+            myweapon[STICK]++;
+            break;
+        case 2:
+            num1=3;num2=4;
+            myweapon[KNIFE]++;
+            break;
+        case 3:
+            num1=2;num2=10;
+            myweapon[GUN]++;
+            break;
+        case 4:
+            num2=1;
+            backage[AMMO]++;
+            break;
+        case 'm'-'0':
+            return;
+        case 'M'-'0':
+            return;
+        default:
+            cout<<"\n(!)请输入正确序号!"<<endl;
+            _sleep(500);
+            continue;
+        }
+        if(backage[WOOD]>=num1&&backage[STEEL]>=num2){
+            backage[WOOD]-=num1;
+            backage[STEEL]-=num2;
+            printline("\n 制作中...\n");
+            printline(progress_bar);
+            printline("\n 完成!\n",0);
+        }
+        else{
+            printline("\n 材料不足!\n",0,10);
+        }
     }
 }
 
@@ -478,12 +511,12 @@ void basement(Player &p){
     while(1){
         system("cls");
         system("color 06");
-        cout<<"+--------------------"<<endl;
-        cout<<"| 治疗     : 按R键"<<endl;
-        cout<<"+--------------------"<<endl;
-        cout<<"| 制作武器 : 按M键"<<endl;
-        cout<<"+--------------------"<<endl;
-        cout<<"\n 按B键退出基地..."<<endl;
+        cout<<"====================="<<endl;
+        cout<<"| 治疗     : 按R键  |"<<endl;
+        cout<<"+-------------------+"<<endl;
+        cout<<"| 制作武器 : 按M键  |"<<endl;
+        cout<<"+-------------------+"<<endl;
+        cout<<"\n<按B键退出基地...>"<<endl;
         char c=_getch();
         if(c=='r'||c=='R'){
             if(p.getlife()<100){
@@ -495,7 +528,7 @@ void basement(Player &p){
                 printline("\n 饱食度 -15\n");
             }
             else{
-                cout<<"\n 生命值已满!"<<endl;
+                cout<<"\n(!)生命值已满!"<<endl;
                 _sleep(500);
             }
         }
@@ -636,18 +669,15 @@ void combat(Zombie z,Player &p){
             }
         }
         else if(c=='x'||c=='X'){
-            showbag();
-            cout<<" 输入序号以使用相应物品..."<<endl;
-            cout<<" 若要关闭, 请输入0..."<<endl;
-            char c=_getch();
-            int choice=c-'0';
-            p.eat(choice);
+            usebag(p);
             continue;
         }
         else if(c=='j'||c=='J'){
             char w=showweapon(p);
-            p.change_weapon(w);
-            printline("\n 更换武器成功!\n");
+            if(w!=PUNCH){
+                p.change_weapon(w);
+                printline("\n 更换武器成功!\n");
+            }
             continue;
         }
         else{
@@ -722,7 +752,7 @@ void help_menu(){
     cout<<"+--------------------"<<endl;
     cout<<"|  进入基地 : B"<<endl;
     cout<<"====================="<<endl;
-    cout<<"\n 请按任意键关闭..."<<endl;
+    cout<<"\n<请按任意键关闭...>"<<endl;
     _getch();
     system("color 0A");
 }
@@ -793,20 +823,17 @@ int main(){
             }
         }
         else if(c=='x'||c=='X'){
-            showbag();
-            cout<<" 输入序号以使用相应物品..."<<endl;
-            cout<<" 若要关闭, 请输入0..."<<endl;
-            char c=_getch();
-            int choice=c-'0';
-            p1.eat(choice);
+            usebag(p1);
         }
         else if(c=='b'||c=='B' && p1.getx()==0){
             basement(p1);
         }
         else if(c=='j'||c=='J'){
             char w=showweapon(p1);
-            p1.change_weapon(w);
-            printline("\n 更换武器成功!\n");
+            if(w!=PUNCH){
+                p1.change_weapon(w);
+                printline("\n 更换武器成功!\n");
+            }
         }
         else if(c=='h'||c=='H'){
             help_menu();
