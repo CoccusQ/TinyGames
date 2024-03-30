@@ -787,8 +787,10 @@ int main(){
             }
         }
         else if(c=='z'||c=='z'){
-            printline(e);
-            detect(p1);
+            if(path[p1.getx()]!=BASE){
+                printline(e);
+                detect(p1);
+            }
         }
         else if(c=='x'||c=='X'){
             showbag();
