@@ -733,33 +733,77 @@ void detect(Player &p){
 
 
 void help_menu(){
-    system("cls");
-    system("color 07");
-    cout<<"====================="<<endl;
-    cout<<"|  帮助--按键说明 "<<endl;
-    cout<<"====================="<<endl;
-    cout<<"|  前进     : D"<<endl;
-    cout<<"+--------------------"<<endl;
-    cout<<"|  后退     : A"<<endl;
-    cout<<"+--------------------"<<endl;
-    cout<<"|  回到基地 : G"<<endl;
-    cout<<"+--------------------"<<endl;
-    cout<<"|  打开背包 : X"<<endl;
-    cout<<"+--------------------"<<endl;
-    cout<<"|  搜索     : Z"<<endl;
-    cout<<"+--------------------"<<endl;
-    cout<<"|  更换武器 : J"<<endl;
-    cout<<"+--------------------"<<endl;
-    cout<<"|  进入基地 : B"<<endl;
-    cout<<"====================="<<endl;
-    cout<<"\n<请按任意键关闭...>"<<endl;
-    _getch();
-    system("color 0A");
+    while(1){
+        system("cls");
+        system("color 0B");
+
+        cout<<"=================="<<endl;
+        cout<<"|      索引 "<<endl;
+        cout<<"+-----------------"<<endl;
+        cout<<"|  1.按键说明"<<endl;
+        cout<<"|  2.物品说明"<<endl;
+        cout<<"|  3.丧尸说明"<<endl;
+        cout<<"|  4.其他提示"<<endl;
+        cout<<"=================="<<endl;
+        cout<<"\n 输入对应序号查看内容..."<<endl;
+        cout<<" <按H键退出帮助...>"<<endl;
+
+        char c=_getch();
+        int choice=c-'0';
+
+        switch(choice){
+            case 1:
+                cout<<"====================="<<endl;
+                cout<<"|  帮助--按键说明 "<<endl;
+                cout<<"====================="<<endl;
+                cout<<"|  前进     : D"<<endl;
+                cout<<"|  后退     : A"<<endl;
+                cout<<"|  回到基地 : G"<<endl;
+                cout<<"|  打开背包 : X"<<endl;
+                cout<<"|  搜索     : Z"<<endl;
+                cout<<"|  更换武器 : J"<<endl;
+                cout<<"|  进入基地 : B"<<endl;
+                cout<<"====================="<<endl;
+                break;
+            case 2:
+                cout<<"\n==============================="<<endl;
+                cout<<"|  帮助--物品说明 "<<endl;
+                cout<<"==============================="<<endl;
+                cout<<"|  水     : 饱食度+2  生命值+5"<<endl;
+                cout<<"|  面包   : 饱食度+20 生命值+2"<<endl;
+                cout<<"|  午餐肉 : 饱食度+12 生命值+5"<<endl;
+                cout<<"|  药品   : 生命值+20"<<endl;
+                cout<<"==============================="<<endl;
+                break;
+            case 3:
+                cout<<"\n==========================================="<<endl;
+                cout<<"|  帮助--丧尸种类说明 "<<endl;
+                cout<<"==========================================="<<endl;
+                cout<<"| 普通丧尸 : 攻击力低 血量低   逃脱成功率高"<<endl;
+                cout<<"| 感染者   : 攻击力中 血量较低 逃脱成功率低"<<endl;
+                cout<<"| 巨型丧尸 : 攻击力高 血量高   逃脱成功率高"<<endl;
+                cout<<"==========================================="<<endl;
+                break;
+            case 4:
+                cout<<"\n 其他提示:"<<endl;
+                cout<<" * 玩家一共有三条生命, 重生后保留获得的物资和探索的地图,\n   但是经验值和攻击力恢复到初始状态"<<endl;
+                cout<<" * 击杀丧尸可得经验值, 经验值累积到一定数量, 攻击力提高"<<endl;
+                cout<<" * 钢铁、木材可用于在基地中制作武器"<<endl;
+                cout<<" * 无论是前进、后退还是搜素, 都会降低一定的饱食度"<<endl;
+                cout<<" * 不同地点获得物资和遭遇丧尸的概率不同"<<endl;
+                break;
+            default:
+                return;
+        }
+        cout<<"\n<请按任意键关闭...>"<<endl;
+        char exit=_getch();
+        if(exit=='h'||exit=='H') return;
+    }
 }
 
 
 void opening(){
-    system("color 0A");
+    system("color 0B");
     cout<<"      _____"<<endl;
     cout<<"     /     \\"<<endl;
     cout<<"    | () () |"<<endl;
@@ -780,7 +824,7 @@ int main(){
     system("color 0A");
     Player p1;
     while(1){
-        cout<<" 按H键查看帮助..."<<endl;
+        cout<<"<按H键查看帮助...>"<<endl;
         showdata(p1);
         site(p1);
         printpath(p1);
@@ -837,6 +881,7 @@ int main(){
         }
         else if(c=='h'||c=='H'){
             help_menu();
+            system("color 0A");
         }
         system("cls");
         if(p1.getlife()<=0){
