@@ -10,7 +10,8 @@ int path[128];
 char showpath[2][128];
 int backage[8];
 int myweapon[5];
-int killed_num=0;
+int killed_num[4];
+int achieve_list[10];
 
 enum Site{STORE=1,FLAT,CLINIC,SCHOOL,FACTORY,STREET,BASE};
 enum Item{WATER=1,BREAD,MEAT,MEDICINE,WOOD,STEEL,AMMO};
@@ -621,6 +622,79 @@ bool escape(int exp,int ztype){
 }
 
 
+string ac1="\n 达成成就: 小试牛刀--击杀一只丧尸\n";
+string ac2="\n 达成成就: 丧尸杀手--击杀五只丧尸\n";
+string ac3="\n 达成成就: 摧枯拉朽--击杀十只丧尸\n";
+string ac4="\n 达成成就: 临危不惧--击杀一只感染者\n";
+string ac5="\n 达成成就: 无所畏惧--击杀三只感染者\n";
+string ac6="\n 达成成就: 终极猎手--击杀一只巨型丧尸\n";
+
+void achievement(Player &p){
+    cout<<endl;
+    if(killed_num[0]==1){
+        printline(ac1);
+        achieve_list[1]++;
+    }
+    else if(killed_num[0]==5){
+        printline(ac2);
+        achieve_list[2]++;
+    }
+    else if(killed_num[0]==10){
+        printline(ac3);
+        achieve_list[3]++;
+    }
+    if(killed_num[INFECTED]==1){
+        printline(ac4);
+        achieve_list[4]++;
+    }
+    else if(killed_num[INFECTED]==3){
+        printline(ac5);
+        achieve_list[5]++;
+    }
+    if(killed_num[GIANT]==1){
+        printline(ac6);
+        achieve_list[6]++;
+    }
+    cout<<"\n 奖励:";
+    explore(p);
+}
+
+
+void show_achievement(){
+    int sum=0;
+    system("cls");
+    system("color 06");
+    if(achieve_list[1]!=0){
+        cout<<ac1;
+        sum++;
+    }
+    if(achieve_list[2]!=0){
+        cout<<ac2;
+        sum++;
+    }
+    if(achieve_list[3]!=0){
+        cout<<ac3;
+        sum++;
+    }
+    if(achieve_list[4]!=0){
+        cout<<ac4;
+        sum++;
+    }
+    if(achieve_list[5]!=0){
+        cout<<ac5;
+        sum++;
+    }
+    if(achieve_list[6]!=0){
+        cout<<ac6;
+        sum++;
+    }
+    if(sum==0) cout<<"\n(!)当前无成就..."<<endl;
+    cout<<"\n<按任意键关闭...>"<<endl;
+    _getch();
+    system("color 0A");
+}
+
+
 void combat(Zombie z,Player &p){
     cout<<"\n 要逃跑吗? (Y/N)"<<endl;
     char choice=_getch();
@@ -649,7 +723,9 @@ void combat(Zombie z,Player &p){
             cout<<"  丧尸生命值 -"<<p.get_atk()<<endl;
             if(z.getlife()<=0){
                 printline(win);
-                killed_num++;
+                killed_num[0]++;
+                killed_num[z.getZType()]++;
+                achievement(p);
                 switch(z.getZType()){
                     case NORMAL:
                         p.addExp(5);
@@ -789,7 +865,7 @@ void help_menu(){
                 cout<<" * 玩家一共有三条生命, 重生后保留获得的物资和探索的地图,\n   但是经验值和攻击力恢复到初始状态"<<endl;
                 cout<<" * 击杀丧尸可得经验值, 经验值累积到一定数量, 攻击力提高"<<endl;
                 cout<<" * 钢铁、木材可用于在基地中制作武器"<<endl;
-                cout<<" * 无论是前进、后退还是搜素, 都会降低一定的饱食度"<<endl;
+                cout<<" * 无论是前进、后退还是搜素, 都会降低一定的饱食度, 饱食\n   度降低到20以下会缓慢消耗生命值, 饱食度在40以上能缓慢\n   恢复生命值"<<endl;
                 cout<<" * 不同地点获得物资和遭遇丧尸的概率不同"<<endl;
                 break;
             default:
@@ -882,6 +958,9 @@ int main(){
         else if(c=='h'||c=='H'){
             help_menu();
             system("color 0A");
+        }
+        else if(c=='k'||c=='K'){
+            show_achievement();
         }
         system("cls");
         if(p1.getlife()<=0){
