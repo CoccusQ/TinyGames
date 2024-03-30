@@ -409,6 +409,7 @@ void showbag(){
 
 void usebag(Player &p){
     while(1){
+        system("cls");
         showbag();
         cout<<" <按X键关闭背包...>"<<endl;
         char c=_getch();
@@ -520,7 +521,7 @@ void basement(Player &p){
         cout<<"\n<按B键退出基地...>"<<endl;
         char c=_getch();
         if(c=='r'||c=='R'){
-            if(p.getlife()<100){
+            if(p.getlife()<100&&p.getsatiety()>=15){
                 p.increaseHP(50);
                 p.decrease_satiety(15);
                 cout<<"\n 开始治疗..."<<endl;
@@ -528,8 +529,12 @@ void basement(Player &p){
                 printline("\n 生命值 +50");
                 printline("\n 饱食度 -15\n");
             }
-            else{
+            else if(p.getsatiety()==100){
                 cout<<"\n(!)生命值已满!"<<endl;
+                _sleep(500);
+            }
+            else if(p.getsatiety()<15){
+                cout<<"\n(!)饱食度过低!"<<endl;
                 _sleep(500);
             }
         }
@@ -937,7 +942,7 @@ int main(){
                 p1.increaseHP(6);
             }
         }
-        else if(c=='z'||c=='z'){
+        else if(c=='z'||c=='Z'){
             if(path[p1.getx()]!=BASE){
                 printline(e);
                 detect(p1);
