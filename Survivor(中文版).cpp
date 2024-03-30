@@ -839,6 +839,7 @@ void help_menu(){
                 cout<<"|  搜索     : Z"<<endl;
                 cout<<"|  更换武器 : J"<<endl;
                 cout<<"|  进入基地 : B"<<endl;
+                cout<<"|  查看成就 : K"<<endl;
                 cout<<"====================="<<endl;
                 break;
             case 2:
