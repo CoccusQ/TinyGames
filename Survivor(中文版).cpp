@@ -12,6 +12,7 @@ int backage[8];
 int myweapon[5];
 int killed_num[4];
 int achieve_list[10];
+int search_times[128];
 
 enum Site{STORE=1,FLAT,CLINIC,SCHOOL,FACTORY,STREET,BASE};
 enum Item{WATER=1,BREAD,MEAT,MEDICINE,WOOD,STEEL,AMMO};
@@ -136,7 +137,7 @@ class Player{
                 b_atk=15;
             }
             else{
-                b_atk=24;
+                b_atk=20;
             }
             atk=b_atk;
         }
@@ -193,6 +194,15 @@ class Zombie{
                     break;
                 default:
                     break;
+            }
+        }
+        void level_up(Player &p){
+            if(p.getExp()>=15){
+                life+=10;
+            }
+            if(p.getExp()>=30){
+                life+=10;
+                atk+=5;
             }
         }
         string getZName(){return name;}
@@ -370,7 +380,7 @@ void explore(Player &p){
     case FACTORY:
         if(i==WOOD||i==STEEL)num=5;
         else if(i==MEAT||i==BREAD){
-            i=STEEL;num=5;
+            i=STEEL;num=2;
         }
         break;
     case STREET:
@@ -444,6 +454,21 @@ int showweapon(Player &p){
     char c=_getch();
     choice=c-'0';
     return choice;
+}
+
+
+void choose_weapon(Player &p){
+    int w=showweapon(p);
+    if(w!=STICK&&w!=KNIFE&&w!=GUN){
+        cout<<"\n(!)请输入正确的序号!"<<endl;
+    }
+    if(w!=PUNCH&&myweapon[w]!=0){
+        if(w==GUN&&backage[AMMO]<=0){
+            cout<<"\n(!)弹药不足!"<<endl;
+        }
+        p.change_weapon(w);
+        printline("\n 更换武器成功!\n");
+    }
 }
 
 
@@ -542,8 +567,7 @@ void basement(Player &p){
             make_weapon();
         }
         else if(c=='j'||c=='J'){
-            char w=showweapon(p);
-            p.change_weapon(w);
+            choose_weapon(p);
         }
         else if(c=='b'||c=='B'){
             system("color 0A");
@@ -626,37 +650,43 @@ bool escape(int exp,int ztype){
     return false;
 }
 
-
+string ac0="\n 达成成就: 世界尽头--到达地图右边界并搜集完所有物资\n";
 string ac1="\n 达成成就: 小试牛刀--击杀一只丧尸\n";
 string ac2="\n 达成成就: 丧尸杀手--击杀五只丧尸\n";
 string ac3="\n 达成成就: 摧枯拉朽--击杀十只丧尸\n";
 string ac4="\n 达成成就: 临危不惧--击杀一只感染者\n";
 string ac5="\n 达成成就: 无所畏惧--击杀三只感染者\n";
 string ac6="\n 达成成就: 终极猎手--击杀一只巨型丧尸\n";
+//string ac7="\n 达成成就: 走为上策--遇到感染者后成功逃跑\n";
 
 void achievement(Player &p){
     cout<<endl;
-    if(killed_num[0]==1){
+    if(search_times[127]>=3){
+        printline(ac0);
+        achieve_list[0]++;
+        p.increaseHP(10000);
+    }
+    if(killed_num[0]==1&&achieve_list[1]==0){
         printline(ac1);
         achieve_list[1]++;
     }
-    else if(killed_num[0]==5){
+    else if(killed_num[0]==5&&achieve_list[2]==0){
         printline(ac2);
         achieve_list[2]++;
     }
-    else if(killed_num[0]==10){
+    else if(killed_num[0]==10&&achieve_list[3]==0){
         printline(ac3);
         achieve_list[3]++;
     }
-    if(killed_num[INFECTED]==1){
+    if(killed_num[INFECTED]==1&&achieve_list[4]==0){
         printline(ac4);
         achieve_list[4]++;
     }
-    else if(killed_num[INFECTED]==3){
+    else if(killed_num[INFECTED]==3&&achieve_list[5]==0){
         printline(ac5);
         achieve_list[5]++;
     }
-    if(killed_num[GIANT]==1){
+    if(killed_num[GIANT]==1&&achieve_list[6]==0){
         printline(ac6);
         achieve_list[6]++;
     }
@@ -669,6 +699,10 @@ void show_achievement(){
     int sum=0;
     system("cls");
     system("color 06");
+    if(achieve_list[0]!=0){
+        cout<<ac0;
+        sum++;
+    }
     if(achieve_list[1]!=0){
         cout<<ac1;
         sum++;
@@ -701,6 +735,7 @@ void show_achievement(){
 
 
 void combat(Zombie z,Player &p){
+    z.level_up(p);
     cout<<"\n 要逃跑吗? (Y/N)"<<endl;
     char choice=_getch();
     if(choice=='y'||choice=='Y'){
@@ -754,11 +789,7 @@ void combat(Zombie z,Player &p){
             continue;
         }
         else if(c=='j'||c=='J'){
-            char w=showweapon(p);
-            if(w!=PUNCH){
-                p.change_weapon(w);
-                printline("\n 更换武器成功!\n");
-            }
+            choose_weapon(p);
             continue;
         }
         else{
@@ -802,10 +833,16 @@ void combat(Zombie z,Player &p){
 
 void detect(Player &p){
     int i=rand()%10+1;
+    if(search_times[p.getx()]>=3){
+        cout<<"\n(!)该地点已经没有可搜集的物资..."<<endl;
+        _sleep(500);
+        return;
+    }
     if(i<=6){
         cout<<"\n 安全..."<<endl;
         explore(p);
         p.decrease_satiety(1);
+        search_times[p.getx()]++;
     }
     else{
         combat(produce_zombies(path[p.getx()]),p);
@@ -955,11 +992,7 @@ int main(){
             basement(p1);
         }
         else if(c=='j'||c=='J'){
-            char w=showweapon(p1);
-            if(w!=PUNCH){
-                p1.change_weapon(w);
-                printline("\n 更换武器成功!\n");
-            }
+            choose_weapon(p1);
         }
         else if(c=='h'||c=='H'){
             help_menu();
